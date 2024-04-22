@@ -2,6 +2,8 @@
 #include <vector>
 #include <list>
 #include <memory>
+#include <random>
+#include <ctime>
 
 using namespace std;
 
@@ -102,6 +104,40 @@ public:
     }
 };
 
+
+
+class Lollipop : public Candy {
+public:
+    Lollipop(SizeEnum size, TasteEnum taste, bool isEdible = true) {
+        Size = size; Taste = taste; Type = TypeEnum::Lollipop;
+        CandyIsEdible = isEdible; CandyIsCrushed = false;
+    }
+    void Eat() override { if (IsEdible()) { cout << "I ate the lollipop\n"; } else { cout << "I didn't eat the lollipop\n"; } }
+    void Give() override { cout << "I gave the lollipop!\n"; }
+    void Crush() override { if (!IsCrushed()) { CandyIsCrushed = true; cout << "I crushed the lollipop\n"; } else { cout << "already crushed\n"; } }
+};
+
+class Biscuit : public Candy {
+public:
+    Biscuit(SizeEnum size, TasteEnum taste, bool isEdible = true) {
+        Size = size; Taste = taste; Type = TypeEnum::Biscuit;
+        CandyIsEdible = isEdible; CandyIsCrushed = false;
+    }
+    void Eat() override { if (IsEdible()) { cout << "I ate the biscuit\n"; } else { cout << "I didn't eat the biscuit\n"; } }
+    void Give() override { cout << "I gave the biscuit!\n"; }
+    void Crush() override { if (!IsCrushed()) { CandyIsCrushed = true; cout << "I crushed the biscuit\n"; } else { cout << "already crushed\n"; } }
+};
+
+class LiquidCandy : public Candy {
+public:
+    LiquidCandy(SizeEnum size, TasteEnum taste, bool isEdible = true) {
+        Size = size; Taste = taste; Type = TypeEnum::Liquid;
+        CandyIsEdible = isEdible; CandyIsCrushed = false;  // Предположим, что жидкая конфета не может быть "раздавлена"
+    }
+    void Eat() override { if (IsEdible()) { cout << "I drank the liquid candy\n"; } else { cout << "I didn't drink the liquid candy\n"; } }
+    void Give() override { cout << "I gave the liquid candy!\n"; }
+    void Crush() override { cout << "You can't really crush a liquid candy!\n"; }
+};
 class Iterator;
 
 class Container {
@@ -142,7 +178,7 @@ class ListContainer : public Container {
 private:
     list<shared_ptr<Candy>> candies;
 public:
-    friend class ListIterator; // Allow the iterator access to private members
+    friend class ListIterator; // Разрешает итератору доступ к закрытым элементам
     void AddCandy(shared_ptr<Candy> candy) override {
         candies.push_back(candy);
     }
@@ -168,7 +204,7 @@ public:
     Iterator* CreateIterator() const override;
 };
 
-// Iterator classes and other necessary parts...
+// Классы итераторов и другие необходимые части...
 
 class Iterator {
 public:
@@ -203,7 +239,7 @@ public:
     shared_ptr<Candy> GetCurrent() const override { return *current; }
 };
 
-// Implementations for CreateIterator functions
+// Реализации функций CreateIterator
 Iterator* VectorContainer::CreateIterator() const {
     return new VectorIterator(this);
 }
@@ -293,14 +329,67 @@ public:
 };
 
 
+
+
+
+
+class CandyFactory {
+public:
+    // Функция для создания конфеты случайного типа и характеристик
+    static shared_ptr<Candy> CreateRandomCandy() {
+        static std::mt19937 rng(time(nullptr)); // Генератор случайных чисел
+        std::uniform_int_distribution<int> dist(0, 3); // Дистрибутив для индексов перечислений
+        SizeEnum sizes[] = { SizeEnum::Small, SizeEnum::Medium, SizeEnum::Big, SizeEnum::Large };
+        TasteEnum tastes[] = { TasteEnum::Vanilla, TasteEnum::Strawberry, TasteEnum::Choco, TasteEnum::Pistacio };
+        TypeEnum types[] = { TypeEnum::Chocolate, TypeEnum::Lollipop, TypeEnum::Biscuit, TypeEnum::Liquid };
+
+        SizeEnum size = sizes[dist(rng)];
+        TasteEnum taste = tastes[dist(rng)];
+        TypeEnum type = types[dist(rng)];
+
+        switch (type) {
+        case TypeEnum::Chocolate:
+            return make_shared<Chocolate>(size, taste);
+        case TypeEnum::Lollipop:
+            return make_shared<Lollipop>(size, taste);
+        case TypeEnum::Biscuit:
+            // Предполагаем, что есть класс Biscuit
+            return make_shared<Biscuit>(size, taste);
+        case TypeEnum::Liquid:
+            // Предполагаем, что есть класс LiquidCandy
+            return make_shared<LiquidCandy>(size, taste);
+        default:
+            return nullptr;
+        }
+    }
+};
+
+
 int main() {
     setlocale(LC_ALL, "RU");
     VectorContainer vc;
-    vc.AddCandy(make_shared<Chocolate>(SizeEnum::Small, TasteEnum::Choco));
-    vc.AddCandy(make_shared<Chocolate>(SizeEnum::Large, TasteEnum::Strawberry, false)); // Добавим некоторые несъедобные
+    std::mt19937 rng(time(nullptr));
+    std::uniform_int_distribution<int> countDist(10, 35); // Количество конфет от 10 до 35
+    vc.AddCandy(std::make_shared<Chocolate>(SizeEnum::Small, TasteEnum::Choco, true));
+    vc.AddCandy(std::make_shared<Lollipop>(SizeEnum::Large, TasteEnum::Strawberry, false));
+    vc.AddCandy(std::make_shared<Biscuit>(SizeEnum::Medium, TasteEnum::Vanilla, true));
+    vc.AddCandy(std::make_shared<LiquidCandy>(SizeEnum::Large, TasteEnum::Pistacio, true));
+
+
+
+    int candyCount = countDist(rng);
+    cout << "Добавляем " << candyCount << " конфет в контейнер:" << endl;
+    for (int i = 0; i < candyCount; ++i) {
+        auto candy = CandyFactory::CreateRandomCandy();
+        vc.AddCandy(candy);
+        cout << "Добавлена конфета: " << candy->GetType() << ", размер: " << candy->GetSize() << ", вкус: " << candy->GetTaste() << endl;
+    }
+
+ 
 
     // Создаем итератор для VectorContainer
     unique_ptr<Iterator> it(vc.CreateIterator());
+
 
     // Оборачиваем итератор декоратором для фильтрации по съедобности
     FilterByEdible edibleFilter(it.release());
@@ -328,7 +417,18 @@ int main() {
     for (sizeFilter.First(); !sizeFilter.IsDone(); sizeFilter.Next()) {
         auto candy = sizeFilter.GetCurrent();
         if (candy) {
-            cout << "Конфета размера Medium: " << candy->GetSize() << ", вкус: " << candy->GetTaste() << endl;
+            cout <<"Конфета типа: " << candy->GetType() << ", вкус: " << candy->GetTaste() << endl;
+        }
+    }
+
+
+    // Продемонстрируем содержимое контейнера
+    unique_ptr<Iterator> it4(vc.CreateIterator());
+    cout << "Содержимое VectorContainer:" << endl;
+    for (it4->First(); !it4->IsDone(); it4->Next()) {
+        auto candy = it4->GetCurrent();
+        if (candy) {
+            cout << "Конфета типа: " << candy->GetType() << ", размер: " << candy->GetSize() << ", вкус: " << candy->GetTaste() << endl;
         }
     }
 
