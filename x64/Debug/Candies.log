@@ -1,4 +1,5 @@
 ﻿  Candies.cpp
-C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(108,22): warning C4267: return: преобразование из "size_t" в "int"; возможна потеря данных
-C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(136,22): warning C4267: return: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(86,28): warning C4267: return: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(113,28): warning C4267: return: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(146,80): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
   Candies.vcxproj -> C:\Users\nikit\VisualStudioProjects\SecondTry\x64\Debug\Candies.exe
