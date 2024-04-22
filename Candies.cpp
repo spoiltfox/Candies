@@ -8,10 +8,32 @@ using namespace std;
 enum class SizeEnum : int {
     Small, Medium, Big, Large
 };
+std::ostream& operator<<(std::ostream& os, const SizeEnum& size) {
+    switch (size) {
+    case SizeEnum::Small: os << "Small"; break;
+    case SizeEnum::Medium: os << "Medium"; break;
+    case SizeEnum::Big: os << "Big"; break;
+    case SizeEnum::Large: os << "Large"; break;
+    default: os << "Unknown Size";
+    }
+    return os;
+}
 
 enum class TasteEnum : int {
-    Banilla, Strawberry, Choco, Pistacio
+    Vanilla, Strawberry, Choco, Pistacio
 };
+
+// Перегрузка оператора вывода для перечисления TasteEnum
+std::ostream& operator<<(std::ostream& os, const TasteEnum& taste) {
+    switch (taste) {
+    case TasteEnum::Vanilla: os << "Vanilla"; break;
+    case TasteEnum::Strawberry: os << "Strawberry"; break;
+    case TasteEnum::Choco: os << "Choco"; break;
+    case TasteEnum::Pistacio: os << "Pistacio"; break;
+    default: os << "Unknown Taste";
+    }
+    return os;
+}
 
 enum class TypeEnum : int {
     Chocolate, Lollipop, Biscuit, Liquid
@@ -27,6 +49,8 @@ std::ostream& operator<<(std::ostream& os, const TypeEnum& type) {
     }
     return os;
 }
+
+
 
 class Candy {
 protected:
@@ -48,13 +72,34 @@ public:
 
 class Chocolate : public Candy {
 public:
-    Chocolate(SizeEnum size, TasteEnum taste) {
-        Size = size; Taste = taste; Type = TypeEnum::Chocolate;
-        CandyIsEdible = true; CandyIsCrushed = false;
+    // Измененный конструктор, включающий параметр isEdible
+    Chocolate(SizeEnum size, TasteEnum taste, bool isEdible = true) {
+        Size = size;
+        Taste = taste;
+        Type = TypeEnum::Chocolate;
+        CandyIsEdible = isEdible; // Устанавливаем съедобность из аргумента
+        CandyIsCrushed = false;
     }
-    void Eat() override { if (IsEdible()) { cout << "I ate it\n"; } else { cout << "I didn't eat it\n"; } }
-    void Give() override { cout << "I gave it!\n"; }
-    void Crush() override { if (!IsCrushed()) { CandyIsCrushed = true; cout << "I crush it!\n"; } else { cout << "already crushed\n"; } }
+    void Eat() override {
+        if (IsEdible()) {
+            cout << "I ate it\n";
+        }
+        else {
+            cout << "I didn't eat it\n";
+        }
+    }
+    void Give() override {
+        cout << "I gave it!\n";
+    }
+    void Crush() override {
+        if (!IsCrushed()) {
+            CandyIsCrushed = true;
+            cout << "I crush it!\n";
+        }
+        else {
+            cout << "already crushed\n";
+        }
+    }
 };
 
 class Iterator;
@@ -167,32 +212,126 @@ Iterator* ListContainer::CreateIterator() const {
     return new ListIterator(this);
 }
 
+
+
+
+#include <functional> // Для std::function
+
+// Базовый класс декоратора для итератора
+class IteratorDecorator : public Iterator {
+protected:
+    unique_ptr<Iterator> baseIterator; // Уникальный указатель на базовый итератор
+
+public:
+    IteratorDecorator(Iterator* iterator) : baseIterator(iterator) {}
+    void First() override { baseIterator->First(); }
+    void Next() override { baseIterator->Next(); }
+    bool IsDone() const override { return baseIterator->IsDone(); }
+    shared_ptr<Candy> GetCurrent() const override { return baseIterator->GetCurrent(); }
+};
+
+// Декоратор для фильтрации по съедобности
+class FilterByEdible : public IteratorDecorator {
+public:
+    FilterByEdible(Iterator* iterator) : IteratorDecorator(iterator) {}
+    void First() override {
+        baseIterator->First();
+        while (!IsDone() && !GetCurrent()->IsEdible()) {
+            baseIterator->Next();
+        }
+    }
+    void Next() override {
+        baseIterator->Next();
+        while (!IsDone() && !GetCurrent()->IsEdible()) {
+            baseIterator->Next();
+        }
+    }
+};
+
+// Декоратор для фильтрации по вкусу
+class FilterByTaste : public IteratorDecorator {
+private:
+    TasteEnum requiredTaste; // Требуемый вкус для фильтрации
+
+public:
+    FilterByTaste(Iterator* iterator, TasteEnum taste) : IteratorDecorator(iterator), requiredTaste(taste) {}
+    void First() override {
+        baseIterator->First();
+        while (!IsDone() && GetCurrent()->GetTaste() != requiredTaste) {
+            baseIterator->Next();
+        }
+    }
+    void Next() override {
+        baseIterator->Next();
+        while (!IsDone() && GetCurrent()->GetTaste() != requiredTaste) {
+            baseIterator->Next();
+        }
+    }
+};
+
+// Декоратор для фильтрации по размеру
+class FilterBySize : public IteratorDecorator {
+private:
+    SizeEnum requiredSize; // Требуемый размер для фильтрации
+
+public:
+    FilterBySize(Iterator* iterator, SizeEnum size) : IteratorDecorator(iterator), requiredSize(size) {}
+
+    void First() override {
+        baseIterator->First();
+        while (!IsDone() && GetCurrent()->GetSize() != requiredSize) {
+            baseIterator->Next();
+        }
+    }
+
+    void Next() override {
+        baseIterator->Next();
+        while (!IsDone() && GetCurrent()->GetSize() != requiredSize) {
+            baseIterator->Next();
+        }
+    }
+};
+
+
 int main() {
+    setlocale(LC_ALL, "RU");
     VectorContainer vc;
     vc.AddCandy(make_shared<Chocolate>(SizeEnum::Small, TasteEnum::Choco));
-    vc.AddCandy(make_shared<Chocolate>(SizeEnum::Large, TasteEnum::Strawberry));
+    vc.AddCandy(make_shared<Chocolate>(SizeEnum::Large, TasteEnum::Strawberry, false)); // Добавим некоторые несъедобные
 
-    ListContainer lc;
-    lc.AddCandy(make_shared<Chocolate>(SizeEnum::Medium, TasteEnum::Banilla));
-    lc.AddCandy(make_shared<Chocolate>(SizeEnum::Large, TasteEnum::Pistacio));
-
+    // Создаем итератор для VectorContainer
     unique_ptr<Iterator> it(vc.CreateIterator());
-    cout << "VectorContainer contents:" << endl;
-    for (it->First(); !it->IsDone(); it->Next()) {
-        auto candy = it->GetCurrent();
+
+    // Оборачиваем итератор декоратором для фильтрации по съедобности
+    FilterByEdible edibleFilter(it.release());
+    for (edibleFilter.First(); !edibleFilter.IsDone(); edibleFilter.Next()) {
+        auto candy = edibleFilter.GetCurrent();
         if (candy) {
-            cout << "Found candy of type: " << candy->GetType() << endl;
+            cout << "Съедобная конфета: " << candy->GetType() << endl;
         }
     }
 
-    it.reset(lc.CreateIterator());
-    cout << "ListContainer contents:" << endl;
-    for (it->First(); !it->IsDone(); it->Next()) {
-        auto candy = it->GetCurrent();
+    // Теперь демонстрация фильтрации по вкусу
+    unique_ptr<Iterator> it2(vc.CreateIterator());
+    FilterByTaste tasteFilter(it2.release(), TasteEnum::Choco);
+    for (tasteFilter.First(); !tasteFilter.IsDone(); tasteFilter.Next()) {
+        auto candy = tasteFilter.GetCurrent();
         if (candy) {
-            cout << "Found candy of type: " << candy->GetType() << endl;
+            cout << "Конфета вкуса Choco: " << candy->GetType() << endl;
         }
     }
+    unique_ptr<Iterator> it3(vc.CreateIterator());
+
+    // Фильтрация по размеру Medium
+    FilterBySize sizeFilter(it3.release(), SizeEnum::Medium);
+    cout << "VectorContainer содержит следующие конфеты среднего размера:" << endl;
+    for (sizeFilter.First(); !sizeFilter.IsDone(); sizeFilter.Next()) {
+        auto candy = sizeFilter.GetCurrent();
+        if (candy) {
+            cout << "Конфета размера Medium: " << candy->GetSize() << ", вкус: " << candy->GetTaste() << endl;
+        }
+    }
+
 
     return 0;
 }
