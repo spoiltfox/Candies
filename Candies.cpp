@@ -74,7 +74,7 @@ public:
 
 class Chocolate : public Candy {
 public:
-    // Измененный конструктор, включающий параметр isEdible
+
     Chocolate(SizeEnum size, TasteEnum taste, bool isEdible = true) {
         Size = size;
         Taste = taste;
@@ -138,8 +138,14 @@ public:
     void Give() override { cout << "I gave the liquid candy!\n"; }
     void Crush() override { cout << "You can't really crush a liquid candy!\n"; }
 };
-class Iterator;
-
+class Iterator {
+public:
+    virtual void First() = 0;
+    virtual void Next() = 0;
+    virtual bool IsDone() const = 0;
+    virtual shared_ptr<Candy> GetCurrent() const = 0;
+    virtual ~Iterator() {}
+};
 class Container {
 public:
     virtual void AddCandy(shared_ptr<Candy> candy) = 0;
@@ -206,14 +212,14 @@ public:
 
 // Классы итераторов и другие необходимые части...
 
-class Iterator {
-public:
-    virtual void First() = 0;
-    virtual void Next() = 0;
-    virtual bool IsDone() const = 0;
-    virtual shared_ptr<Candy> GetCurrent() const = 0;
-    virtual ~Iterator() {}
-};
+//class Iterator {
+//public:
+//    virtual void First() = 0;
+//    virtual void Next() = 0;
+//    virtual bool IsDone() const = 0;
+//    virtual shared_ptr<Candy> GetCurrent() const = 0;
+//    virtual ~Iterator() {}
+//};
 
 class VectorIterator : public Iterator {
 private:
@@ -338,7 +344,7 @@ public:
     // Функция для создания конфеты случайного типа и характеристик
     static shared_ptr<Candy> CreateRandomCandy() {
         static std::mt19937 rng(time(nullptr)); // Генератор случайных чисел
-        std::uniform_int_distribution<int> dist(0, 3); // Дистрибутив для индексов перечислений
+        std::uniform_int_distribution<int> dist(0, 3); 
         SizeEnum sizes[] = { SizeEnum::Small, SizeEnum::Medium, SizeEnum::Big, SizeEnum::Large };
         TasteEnum tastes[] = { TasteEnum::Vanilla, TasteEnum::Strawberry, TasteEnum::Choco, TasteEnum::Pistacio };
         TypeEnum types[] = { TypeEnum::Chocolate, TypeEnum::Lollipop, TypeEnum::Biscuit, TypeEnum::Liquid };
@@ -353,10 +359,10 @@ public:
         case TypeEnum::Lollipop:
             return make_shared<Lollipop>(size, taste);
         case TypeEnum::Biscuit:
-            // Предполагаем, что есть класс Biscuit
+            
             return make_shared<Biscuit>(size, taste);
         case TypeEnum::Liquid:
-            // Предполагаем, что есть класс LiquidCandy
+            
             return make_shared<LiquidCandy>(size, taste);
         default:
             return nullptr;
@@ -413,7 +419,7 @@ int main() {
 
     // Фильтрация по размеру Medium
     FilterBySize sizeFilter(it3.release(), SizeEnum::Medium);
-    cout << "VectorContainer содержит следующие конфеты среднего размера:" << endl;
+    cout << "Контейнер содержит следующие конфеты среднего размера:" << endl;
     for (sizeFilter.First(); !sizeFilter.IsDone(); sizeFilter.Next()) {
         auto candy = sizeFilter.GetCurrent();
         if (candy) {
@@ -422,9 +428,9 @@ int main() {
     }
 
 
-    // Продемонстрируем содержимое контейнера
+    // Демонстрация содержимого контейнера
     unique_ptr<Iterator> it4(vc.CreateIterator());
-    cout << "Содержимое VectorContainer:" << endl;
+    cout << "Содержимое контейнера:" << endl;
     for (it4->First(); !it4->IsDone(); it4->Next()) {
         auto candy = it4->GetCurrent();
         if (candy) {
@@ -433,5 +439,9 @@ int main() {
     }
 
 
+
+
     return 0;
 }
+
+

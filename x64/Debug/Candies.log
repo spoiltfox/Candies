@@ -1,7 +1,7 @@
 ﻿  Candies.cpp
-C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(167,28): warning C4267: return: преобразование из "size_t" в "int"; возможна потеря данных
-C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(194,28): warning C4267: return: преобразование из "size_t" в "int"; возможна потеря данных
-C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(227,80): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
-C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(340,37): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(371,26): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(173,28): warning C4267: return: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(200,28): warning C4267: return: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(233,80): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(346,37): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+C:\Users\nikit\VisualStudioProjects\SecondTry\Candies\Candies.cpp(377,26): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
   Candies.vcxproj -> C:\Users\nikit\VisualStudioProjects\SecondTry\x64\Debug\Candies.exe
